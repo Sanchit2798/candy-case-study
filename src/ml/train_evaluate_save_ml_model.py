@@ -23,8 +23,6 @@ class TrainEvaluateSaveMlModel:
     test size defines the ratio of the data reserved for testing later on
     best hyperparameters for the models are found using Grid CV'''
 
-    successful_load : bool = False
-
     def __init__(self, features : List[str], target : str, 
                 data : pd.DataFrame,
                 test_size = 0.1,
@@ -113,14 +111,13 @@ class TrainEvaluateSaveMlModel:
         return ml_model_experiment
 
     def _save_ml_experiment_model(self, ml_model_experiment:MlModelExperiment):
-        if not self.successful_load:
-            pipeline = Pipeline([('scaler', ml_model_experiment.standard_scaler),
-                                ('model', ml_model_experiment.model)])
-            
-            if self.combined_model_file_name is not None:
-                joblib.dump(pipeline, self.combined_model_file_name)
+        pipeline = Pipeline([('scaler', ml_model_experiment.standard_scaler),
+                            ('model', ml_model_experiment.model)])
+        
+        if self.combined_model_file_name is not None:
+            joblib.dump(pipeline, self.combined_model_file_name)
 
-            self._save_ml_experiment_model_files_seperately(ml_model_experiment)
+        self._save_ml_experiment_model_files_seperately(ml_model_experiment)
         return ml_model_experiment
 
     def base_line_model(self, strategy = 'mean'):

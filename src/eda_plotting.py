@@ -17,7 +17,13 @@ def correlation_heatmap(data, columns, title):
 
 #######################################
 #Swarm plot with percentages
-def draw_swarm_with_percentages(ax, df, feature, target, labe, colr):
+def draw_swarm_with_percentages(ax, df, feature, target, labe, colr,
+                                sample_swarm_size=None):
+    
+    if sample_swarm_size is not None and sample_swarm_size < len(df):
+        df_swarm = df.sample(sample_swarm_size, random_state=42)
+    else:
+        df_swarm = df
     # Compute percentages
     counts = df[feature].value_counts(normalize=True) * 100
     sns.boxplot(
@@ -31,16 +37,16 @@ def draw_swarm_with_percentages(ax, df, feature, target, labe, colr):
         ax=ax
     )
     sns.swarmplot(
-        x=df[feature],
-        y=df[target],
-        hue=df[feature],
+        x=df_swarm[feature],
+        y=df_swarm[target],
+        hue=df_swarm[feature],
         palette=colr,
         legend=False,
         ax=ax
     )
     ax.set_xticks([0, 1])
     ax.set_xticklabels(labe)
-    ax.set_ylabel("Win percentage")
+    ax.set_ylabel(target)
     ax.set_xlabel("")
 
     # Add percentage text
@@ -58,7 +64,8 @@ def draw_swarm_with_percentages(ax, df, feature, target, labe, colr):
         )
     ax.set_title(feature, fontweight="bold", fontsize=11, pad=12)
 
-def swarm_grid(df, features, target, labels_dict, colors_dict, max_cols=3, figsize=(14, 4)):
+def swarm_grid(df, features, target, labels_dict, colors_dict, max_cols=3, figsize=(14, 4),
+               sample_swarm_size=None):
     n = len(features)
     rows = math.ceil(n / max_cols)
     fig, axes = plt.subplots(rows, max_cols, figsize=(figsize[0], figsize[1] * rows))
@@ -67,7 +74,7 @@ def swarm_grid(df, features, target, labels_dict, colors_dict, max_cols=3, figsi
     for i, feat in enumerate(features):
         label = labels_dict[feat]
         color = colors_dict[feat]
-        draw_swarm_with_percentages(axes[i], df, feat, target, label, color)
+        draw_swarm_with_percentages(axes[i], df, feat, target, label, color, sample_swarm_size)
 
     for j in range(i + 1, len(axes)):
         axes[j].axis("off")
@@ -120,7 +127,7 @@ def draw_boxplot(ax, df, feature, color, x_lim=(0, 100)):
         ax=ax
     )
     ax.set_xlabel(feature)
-    ax.set_ylabel("Win Percentage")
+    ax.set_ylabel("")
     ax.set_xlim(x_lim[0], x_lim[1])
     ax.set_title(f"Boxplot of {feature}", fontweight="bold", fontsize=11, pad=12)
 
@@ -154,7 +161,7 @@ def draw_regplot(ax, df, feature, target, color, x_lim=(0, 100), y_lim=(0, 100))
         ax=ax
     )
     ax.set_xlabel(feature)
-    ax.set_ylabel("Win Percentage")
+    ax.set_ylabel(target)
     ax.set_ylim(y_lim[0], y_lim[1])
     ax.set_xlim(x_lim[0], x_lim[1])
     ax.set_title(f"Regression of {target} on {feature}", fontweight="bold", fontsize=11, pad=12)
@@ -176,3 +183,37 @@ def regplot_grid(df, features, target, colors_dict, x_limits_dict, y_limits_dict
     plt.tight_layout()
     plt.show()
 #######################################
+
+def draw_scatter_plot(ax, df, feature, target, color_feature,
+                 x_lim=(0, 100), y_lim=(0, 100), cmap="viridis"):
+
+    # Scatter with colour gradient
+    sc = ax.scatter(
+        df[feature],
+        df[target],
+        c=df[color_feature],
+        cmap=cmap,
+        alpha=0.6,
+        s=25
+    )
+
+    # Regression line (no scatter)
+    sns.regplot(
+        x=df[feature],
+        y=df[target],
+        scatter=False,
+        line_kws={"linewidth": 2, "color": "black"},
+        ax=ax
+    )
+
+    # Colorbar
+    cbar = plt.colorbar(sc, ax=ax)
+    cbar.set_label(color_feature)
+
+    # Labels and limits
+    ax.set_xlabel(feature)
+    ax.set_ylabel(target)
+    ax.set_xlim(*x_lim)
+    ax.set_ylim(*y_lim)
+    ax.set_title(f"Regression of {target} on {feature}", fontweight="bold", fontsize=11, pad=12)
+
