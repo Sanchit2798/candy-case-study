@@ -20,6 +20,16 @@ def correlation_heatmap(data, columns, title):
 def draw_swarm_with_percentages(ax, df, feature, target, labe, colr):
     # Compute percentages
     counts = df[feature].value_counts(normalize=True) * 100
+    sns.boxplot(
+        x=df[feature],
+        y=df[target],
+        showcaps=False,
+        boxprops={'facecolor':'none', 'alpha':0.5, 'edgecolor':'black', 'linewidth':1},
+        whiskerprops={'color':'black', 'linewidth':1, 'alpha':0.5},
+        medianprops={'color':'red', 'linewidth':1.5, 'alpha':0.5},
+        showfliers=False,
+        ax=ax
+    )
     sns.swarmplot(
         x=df[feature],
         y=df[target],
