@@ -1,0 +1,5 @@
+Can give more exploitation recommendations if needed.
+Discuss on a metric to use to balance this exploration exploitation strategy 
+	- Diverse in feature space and best predicted values
+	- Most uncertain (most unexplored region)
+	- Bayesian opt
